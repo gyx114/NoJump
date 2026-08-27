@@ -1,0 +1,15 @@
+*.iml
+.gradle
+/local.properties
+.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+.kotlin
+# Gradle daemon JVM 运行时配置（本地生成，勿提交）
+gradle-daemon-jvm.properties
+*.hprof
+*.apk
