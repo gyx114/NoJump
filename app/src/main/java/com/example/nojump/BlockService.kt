@@ -26,6 +26,8 @@ class BlockService : Service() {
         RuleStore.init(this)
         ForegroundWatcher.init(this)
         RuleEngine.configure(packageName)
+        // 清理上次异常退出可能残留的冻结（杀后台时 onDestroy 不一定执行）
+        Thread { Freezer.unfreezeAll() }.start()
         createChannel()
         val notif = buildNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -59,6 +61,12 @@ class BlockService : Service() {
         runCatching { thread.join(1000) }
         Freezer.unfreezeAll()
         super.onDestroy()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        // 用户在“最近任务”里滑掉本应用时，恢复被隐藏的目标应用
+        Freezer.unfreezeAll()
     }
 
     private fun runLoop() {

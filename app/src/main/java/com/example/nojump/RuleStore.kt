@@ -31,6 +31,11 @@ object RuleStore {
         set(value) = prefs.edit().putLong("poll_ms", value).apply()
 
     var unfreezeDelayMs: Long
-        get() = prefs.getLong("unfreeze_delay_ms", 5000L)
+        get() = prefs.getLong("unfreeze_delay_ms", 2000L)
         set(value) = prefs.edit().putLong("unfreeze_delay_ms", value).apply()
+
+    /** 当前被本项目冻结的应用集合（持久化）：即便杀后台丢了内存，仍能据此恢复解冻。 */
+    var frozenSet: Set<String>
+        get() = prefs.getStringSet("frozen", emptySet()) ?: emptySet()
+        set(value) = prefs.edit().putStringSet("frozen", HashSet(value)).apply()
 }

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NoJump</string>
+    <string name="accessibility_service_description">NoJump 使用无障碍服务实时侦测当前正在前台运行的应用，以便在进入“源头”应用时立即冻结“目标”应用、退出后自动恢复。此服务不读取任何屏幕文本或输入内容。</string>
 </resources>

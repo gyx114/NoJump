@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
 
     private fun refreshStates() {
         state.shizukuOk.value = ShizukuManager.isReady && ShizukuManager.isGranted
-        state.usageOk.value = ForegroundWatcher.hasUsagePermission()
+        state.a11yOk.value = ForegroundWatcher.hasAccessibilityEnabled()
     }
 
     companion object {
@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
 
 class State {
     val shizukuOk = mutableStateOf(false)
-    val usageOk = mutableStateOf(false)
+    val a11yOk = mutableStateOf(false)
 }
 
 @Composable
@@ -132,6 +132,14 @@ fun NoJumpApp() {
             }
 
             item {
+                Text(
+                    "使用前请先开启「无障碍服务」（实时侦测前台）与「Shizuku」（冻结/解冻）。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            item {
                 if (running.value) {
                     OutlinedButton(
                         onClick = { BlockService.stop(context); running.value = false },
@@ -148,9 +156,13 @@ fun NoJumpApp() {
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedButton(
-                        onClick = { context.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) },
+                        onClick = {
+                            context.startActivity(
+                                Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                            )
+                        },
                         modifier = Modifier.weight(1f)
-                    ) { Text("使用情况权限") }
+                    ) { Text("无障碍服务") }
                     OutlinedButton(
                         onClick = {
                             val launch = context.packageManager
@@ -225,7 +237,7 @@ private fun StatusCard(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         StatusDot("Shizuku 已授权", MainActivity.state.shizukuOk.value)
-        StatusDot("使用情况访问权限", MainActivity.state.usageOk.value)
+        StatusDot("无障碍服务（实时侦测前台）", MainActivity.state.a11yOk.value)
         StatusDot("来源 ${source.value.size} 个 / 目标 ${target.value.size} 个", true)
     }
 }
