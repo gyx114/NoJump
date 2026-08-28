@@ -2,7 +2,7 @@
 
 一个安卓原生应用，通过 **Shizuku 免 root 系统权限**，在检测到"从来源应用跳转到目标应用"时，把目标应用整体**冻结**，从源头阻止短剧类 App 里那些"一点就跳到美团/起点读书"的恶意广告跳转。
 
-> 技术栈：Kotlin + Jetpack Compose + Material3（对齐 ClipBridge 项目）；非无障碍、免 root。
+> 技术栈：Kotlin + Jetpack Compose + Material3；**无障碍服务**实时侦测前台 + **Shizuku** 免 root 冻结。
 
 ## 核心原理
 
@@ -12,7 +12,7 @@
         ▼  NoJump 借 Shizuku 执行
    pm disable-user 美团   ← 目标被系统禁用，拉不起来
         │
-  离开来源App             ← 延迟几秒自动
+  离开来源App             ← 稍候自动
         ▼
    pm enable 美团         ← 恢复正常
 ```
@@ -22,7 +22,7 @@
 - 按"来源→目标"配对，能区分"广告跳转"（从短剧发起）和"你手动点开"（从桌面发起）。
 
 ## 功能
-- 前后台轮询前台应用（UsageStats）
+- 无障碍服务**事件驱动**实时侦测前台应用（不轮询、无 ROM 延迟）
 - 冻结/解冻目标应用（借 Shizuku 执行 `pm disable-user` / `pm enable`）
 - 一键暂停（打游戏时）与通知栏"暂停 / 继续"按钮
 - 应用列表可搜索，可切换"列出系统应用"
@@ -32,7 +32,7 @@
 
 1. **装 Shizuku**（官方渠道）：安装后，用电脑 `adb` 连接手机执行 Shizuku 显示的激活命令。
 2. **授权 NoJump**：在 Shizuku 的授权管理里允许 NoJump。
-3. **使用情况访问权限**：设置 → 特殊应用访问 → 使用情况访问权限 → 允许 NoJump（或 `adb shell appops set com.example.nojump android:get_usage_stats allow`）。
+3. **开启无障碍服务**：设置 → 无障碍 → 找到 **NoJump** → 开启（或从 NoJump 主界面点【无障碍服务】直达）。这是实时侦测前台所必需的。
 4. 打开 NoJump：勾选 **来源**（短剧）与 **目标**（美团等）。
 5. 点【启动拦截后台服务】。
 
@@ -49,19 +49,20 @@
 | 构建 | AGP 9.3.0 · Kotlin DSL |
 | 版本 | minSdk 26 / target 37 |
 | 持久化 | SharedPreferences（`object` 单例）|
-| 权限方案 | Shizuku（`dev.rikka.shizuku:api` / `provider` 12.1.0）+ UsageStats |
+| 权限方案 | Shizuku（`dev.rikka.shizuku:api` / `provider` 12.1.0）+ 无障碍服务 |
 
 ## 项目结构
 ```
 app/src/main/java/com/example/nojump/
-├── MainActivity.kt        # Compose 主界面
-├── BlockService.kt        # 前台服务：轮询 + 通知栏暂停/继续
-├── RuleEngine.kt          # 来源→目标判定 + 延迟解冻
-├── ForegroundWatcher.kt   # UsageStats 读取前台
-├── Freezer.kt             # 冻结/解冻执行
-├── ShizukuManager.kt      # Shizuku 借权封装
-├── RuleStore.kt           # 规则持久化
-└── AppList.kt             # 已装应用列表
+├── MainActivity.kt                  # Compose 主界面 + 权限引导
+├── BlockService.kt                  # 前台服务：驱动状态机 + 通知栏暂停/继续
+├── ForegroundAccessibilityService.kt# 无障碍服务：事件驱动侦测前台
+├── RuleEngine.kt                    # 来源→目标判定 + 延迟解冻
+├── ForegroundWatcher.kt             # 前台读取入口（无障碍主判 + 兜底）
+├── Freezer.kt                       # 冻结/解冻执行
+├── ShizukuManager.kt                # Shizuku 借权封装
+├── RuleStore.kt                     # 规则/状态持久化
+└── AppList.kt                       # 已装应用列表
 ```
 
 ## 构建
