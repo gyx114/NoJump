@@ -25,8 +25,9 @@ object RuleStore {
         get() = prefs.getBoolean("paused", false)
         set(value) = prefs.edit().putBoolean("paused", value).apply()
 
+    /** 轮询间隔：越小拦截越快、越耗电。默认 400ms 兼顾响应与续航。 */
     var pollIntervalMs: Long
-        get() = prefs.getLong("poll_ms", 1000L)
+        get() = prefs.getLong("poll_ms", 400L)
         set(value) = prefs.edit().putLong("poll_ms", value).apply()
 
     var unfreezeDelayMs: Long
