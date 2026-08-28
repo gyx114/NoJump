@@ -109,7 +109,7 @@ fun NoJumpApp() {
             item { Text("NoJump", style = MaterialTheme.typography.headlineMedium) }
             item {
                 Text(
-                    "拦截 App 恶意跳转：进入来源应用后冻结目标应用",
+                    "拦截 App 恶意跳转：在源头应用中禁止跳转到目标应用",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -173,7 +173,11 @@ fun NoJumpApp() {
             item {
                 Text("配置拦截", style = MaterialTheme.typography.titleSmall)
                 Text(
-                    "勾选【来源】= 进入它时拦截跳转；勾选【目标】= 被冻结的应用",
+                    "触发源头：在这个应用中跳转会被拦截",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    "跳转目标：使被冻结的应用无法跳转到此应用",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -267,12 +271,12 @@ private fun AppRow(
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Checkbox(checked = inSource, onCheckedChange = onSource)
-                Text("来源", style = MaterialTheme.typography.labelSmall)
+                Text("作为源头", style = MaterialTheme.typography.labelSmall)
             }
             Spacer(Modifier.size(8.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Checkbox(checked = inTarget, onCheckedChange = onTarget)
-                Text("目标", style = MaterialTheme.typography.labelSmall)
+                Text("作为目标", style = MaterialTheme.typography.labelSmall)
             }
         }
         HorizontalDivider()

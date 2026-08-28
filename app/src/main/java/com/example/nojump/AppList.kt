@@ -17,9 +17,13 @@ object AppList {
         val result = mutableListOf<AppInfo>()
         for (info in pm.getInstalledApplications(0)) {
             if (info.packageName == context.packageName) continue
-            // 默认只保留有启动图标的应用，列表清爽；
-            // includeSystem=true 时列出全部（含系统/预装），配合搜索框找应用
-            if (!includeSystem && pm.getLaunchIntentForPackage(info.packageName) == null) continue
+            if (!includeSystem) {
+                val launchable = pm.getLaunchIntentForPackage(info.packageName) != null
+                // 被冻结(disable-user)的应用 launch intent 会返回 null，
+                // 但需保留在列表中以便取消目标勾选，故用 enabled 兜底
+                val enabled = runCatching { info.enabled }.getOrDefault(true)
+                if (!launchable && enabled) continue
+            }
             val label = runCatching { pm.getApplicationLabel(info).toString() }
                 .getOrDefault(info.packageName)
             val icon = runCatching { info.loadIcon(pm) }.getOrNull()
