@@ -124,6 +124,8 @@ fun NoJumpApp() {
                         onCheckedChange = {
                             paused.value = it
                             RuleStore.paused = it
+                            // 暂停时立即解冻已冻结目标（否则保持禁用，看起来"还在拦截"）
+                            if (it) Thread { Freezer.unfreezeAll() }.start()
                         }
                     )
                 }
